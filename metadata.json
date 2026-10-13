@@ -1,0 +1,10 @@
+{
+  "name": "Zara - Real-time Voice AI Companion",
+  "description": "A real-time, voice-to-voice AI assistant powered by Gemini Live API featuring natural conversational pacing, live waveform audio visualizers, and tool execution.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,58 @@
+import { UIMode, UIModeInfo } from '../types/zara';
+
+export const UI_MODES_LIST: UIModeInfo[] = [
+  {
+    id: 'classic',
+    name: 'Classic Studio',
+    family: 'Old UI',
+    tagline: 'The original obsidian glassmorphic companion',
+    accent: '#a855f7',
+    glow: 'rgba(168, 85, 247, 0.45)',
+    badge: 'Classic Old UI',
+  },
+  {
+    id: 'hologram',
+    name: 'Hologram Deck',
+    family: 'New UI',
+    tagline: 'Sci-fi HUD radar with kinetic motion dynamics',
+    accent: '#06b6d4',
+    glow: 'rgba(6, 182, 212, 0.5)',
+    badge: 'New UI • Motion',
+  },
+  {
+    id: 'cyberpunk',
+    name: 'Cyberpunk Noir',
+    family: 'New UI',
+    tagline: 'High-voltage neon magenta/cyan equalizer & scanlines',
+    accent: '#ec4899',
+    glow: 'rgba(236, 72, 153, 0.5)',
+    badge: 'New UI • High Voltage',
+  },
+  {
+    id: 'aurora',
+    name: 'Liquid Aurora',
+    family: 'New UI',
+    tagline: 'Fluid morphing spectral waves & floating glass bubbles',
+    accent: '#10b981',
+    glow: 'rgba(16, 185, 129, 0.5)',
+    badge: 'New UI • Fluid',
+  },
+  {
+    id: 'minimal',
+    name: 'Zen Minimalist',
+    family: 'New UI',
+    tagline: 'Distraction-free monochrome matte graphite aesthetics',
+    accent: '#e4e4e7',
+    glow: 'rgba(228, 228, 231, 0.25)',
+    badge: 'New UI • Minimal',
+  },
+  {
+    id: 'cosmic',
+    name: 'Cosmic Space',
+    family: 'New UI',
+    tagline: 'Deep celestial starfield with orbiting gravitational rings',
+    accent: '#6366f1',
+    glow: 'rgba(99, 102, 241, 0.5)',
+    badge: 'New UI • Cosmic',
+  },
+];
