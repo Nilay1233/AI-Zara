@@ -407,20 +407,38 @@ const ZARA_TOOLS = [
   },
 ];
 
+// Protect HTTP server from unhandled client socket drops or resets
+httpServer.on('clientError', (err: any, socket: any) => {
+  if (err?.code === 'ECONNRESET' || !socket.writable) {
+    return;
+  }
+  try {
+    socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+  } catch {}
+});
+
+httpServer.on('error', (err: any) => {
+  console.warn('[Server] HTTP server event:', err?.message || err);
+});
+
 // WebSocket server for Gemini Live Audio-to-Audio stream
 const wss = new WebSocketServer({ server: httpServer, path: '/api/live' });
 
-wss.on('error', (err) => {
-  console.error('[Live] WebSocketServer top-level error:', err?.message || err);
+wss.on('error', (err: any) => {
+  console.warn('[Live] WebSocketServer event:', err?.message || err);
 });
 
 wss.on('connection', async (clientWs, req) => {
   let isClosed = false;
   let geminiSession: any = null;
 
-  // Immediate error listener prevents Node from throwing unhandled 'error' events on socket disconnects
+  // Protect underlying net.Socket from unhandled error event emissions
+  req.socket?.on('error', () => {
+    isClosed = true;
+  });
+
+  // Client WebSocket error listener
   clientWs.on('error', (err: any) => {
-    console.warn('[Live] Client WebSocket error handled:', err?.message || err);
     isClosed = true;
     if (geminiSession) {
       try {
@@ -430,17 +448,24 @@ wss.on('connection', async (clientWs, req) => {
     }
   });
 
+  // Protect internal ws _sender from unhandled error propagation
+  if ((clientWs as any)._sender) {
+    (clientWs as any)._sender.onerror = () => {
+      isClosed = true;
+    };
+  }
+
   const safeSend = (data: any) => {
     if (isClosed || clientWs.readyState !== WebSocket.OPEN) return;
     try {
       const payload = typeof data === 'string' ? data : JSON.stringify(data);
       clientWs.send(payload, (err) => {
         if (err) {
-          console.warn('[Live] Client send callback error caught:', err?.message || err);
+          isClosed = true;
         }
       });
-    } catch (err: any) {
-      console.warn('[Live] Client send synchronous exception caught:', err?.message || err);
+    } catch {
+      isClosed = true;
     }
   };
 
@@ -554,17 +579,18 @@ Human-Like Voice & Conversation Guidelines:
               }
             },
             onerror: (err: any) => {
-              console.error('[Live] Gemini session error:', err);
+              if (isClosed) return;
+              const errMsg = err?.message || (typeof err === 'string' ? err : 'Live session closed');
               safeSend({
                 type: 'error',
-                message: err?.message || 'Gemini Live session error',
+                message: errMsg,
               });
             },
             onclose: (event: any) => {
-              console.log('[Live] Gemini session closed:', event);
+              if (isClosed) return;
               safeSend({
                 type: 'closed',
-                reason: 'Live session closed by upstream server',
+                reason: event?.reason || 'Live session closed',
               });
             },
           },
@@ -688,8 +714,8 @@ Human-Like Voice & Conversation Guidelines:
       if (msg.type === 'ping') {
         safeSend({ type: 'pong', timestamp: msg.timestamp });
       }
-    } catch (err) {
-      console.error('[Live] Error parsing client message:', err);
+    } catch (err: any) {
+      console.warn('[Live] Note parsing client message:', err?.message || err);
     }
   });
 

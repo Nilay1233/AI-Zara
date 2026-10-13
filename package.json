@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js release",
     "lint": "tsc --noEmit",
+    "postinstall": "vite build",
     "electron:dev": "electron .",
     "electron:build": "vite build && electron-builder --win --x64",
     "electron:pack": "electron-builder --dir"
@@ -48,7 +49,7 @@
     "productName": "Zara AI Companion",
     "copyright": "Copyright © 2026",
     "directories": {
-      "output": "release"
+      "output": "dist"
     },
     "files": [
       "dist/**/*",
